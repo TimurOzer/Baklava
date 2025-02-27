@@ -9,13 +9,13 @@ class Blockchain:
     def create_genesis_block(self):
         return Block(0, "0", "Genesis Block", time.time())
 
-    def get_latest_block(self):
-        return self.chain[-1]
-
     def add_block(self, transactions):
         new_block = Block(len(self.chain), self.get_latest_block().hash, transactions)
         new_block.mine_block(self.difficulty)
         self.chain.append(new_block)
+
+    def get_latest_block(self):
+        return self.chain[-1]
 
     def is_chain_valid(self):
         for i in range(1, len(self.chain)):
@@ -27,3 +27,7 @@ class Blockchain:
             if current_block.previous_hash != previous_block.hash:
                 return False
         return True
+
+    def __str__(self):
+        return "\n".join([str(block) for block in self.chain])
+

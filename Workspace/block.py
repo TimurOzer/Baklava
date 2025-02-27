@@ -7,7 +7,7 @@ class Block:
         self.previous_hash = previous_hash
         self.transactions = transactions
         self.timestamp = timestamp or time.time()
-        self.nonce = 0  # Proof of Work için kullanacağız
+        self.nonce = 0  # Used for Proof of Work
         self.hash = self.calculate_hash()
 
     def calculate_hash(self):
@@ -18,3 +18,6 @@ class Block:
         while self.hash[:difficulty] != '0' * difficulty:
             self.nonce += 1
             self.hash = self.calculate_hash()
+
+    def __str__(self):
+        return f"Block {self.index} - Hash: {self.hash}, Previous Hash: {self.previous_hash}, Transactions: {self.transactions}, Timestamp: {self.timestamp}"
