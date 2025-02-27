@@ -1,6 +1,33 @@
 import socket
 import json
+import os
 from blockchain import Blockchain  # Blockchain sınıfınızı buraya dahil etmelisiniz
+from flask import Flask, jsonify
+import time
+
+app = Flask(__name__)
+
+# Log dosyalarının bulunduğu klasör
+log_folder = "client_logs"
+if not os.path.exists(log_folder):
+    os.makedirs(log_folder)
+
+# Blockchain'i başlatıyoruz
+blockchain = Blockchain()
+
+# Logları almak için API endpoint
+@app.route('/get_logs', methods=['GET'])
+def get_logs():
+    log_files = [f for f in os.listdir(log_folder) if f.endswith('.txt')]  # .txt dosyalarını al
+    log_files.sort(reverse=True)  # En son logları önce sıralıyoruz
+    logs = []
+
+    # En son log dosyasındaki içeriği al
+    for log_file in log_files:
+        with open(os.path.join(log_folder, log_file), 'r') as file:
+            logs.append(file.read())  # Log içeriklerini listeye ekle
+
+    return jsonify(logs)
 
 def start_server(host='127.0.0.1', port=5001):
     # Sunucu soketini oluştur
@@ -8,8 +35,6 @@ def start_server(host='127.0.0.1', port=5001):
     server_socket.bind((host, port))  # Sunucuyu belirtilen host ve port üzerinde dinlemeye başlat
     server_socket.listen(5)
     print(f"Server listening on {host}:{port}...")
-
-    blockchain = Blockchain()  # Blockchain'i başlatıyoruz
 
     while True:
         # İstemci bağlantısını kabul et
@@ -36,6 +61,14 @@ def start_server(host='127.0.0.1', port=5001):
                 blockchain.add_block(block_data)  # Blockchain'e ekliyoruz
                 print(f"Updated blockchain: {blockchain.chain}")
 
+                # Log kaydını yapalım
+                timestamp = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
+                log_message = f"New block added at {timestamp}:\n{block_data}\n"
+                log_filename = f"{log_folder}/log_{timestamp}.txt"
+                with open(log_filename, 'w') as log_file:
+                    log_file.write(log_message)
+                print(f"Log saved to: {log_filename}")
+
                 # Yanıt gönderelim
                 client_socket.send("Block data received and added to blockchain".encode('utf-8'))
             else:
@@ -51,4 +84,10 @@ def start_server(host='127.0.0.1', port=5001):
             client_socket.close()
 
 if __name__ == "__main__":
-    start_server()
+    # Sunucu ve Flask API'yi çalıştır
+    from threading import Thread
+    server_thread = Thread(target=start_server, args=('127.0.0.1', 5001))
+    server_thread.start()
+    
+    # Flask API'yi çalıştır
+    app.run(debug=True, host='0.0.0.0', port=5002)  # API portu farklı olmalı
