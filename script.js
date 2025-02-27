@@ -1,4 +1,4 @@
-let logAdded = false;  // Yeni log eklenip eklenmediğini kontrol etmek için bayrak
+let logAdded = false;
 
 function addLog(message) {
     const logContainer = document.getElementById("logs");
@@ -6,19 +6,27 @@ function addLog(message) {
     const currentDate = new Date().toLocaleString();
     logEntry.textContent = `${currentDate}: ${message}`;
     logContainer.appendChild(logEntry);
-    logAdded = true;  // Yeni log eklenmişse bayrağı güncelle
+}
+
+// Gerçek logları sunucudan alıp eklemek için
+function fetchLogs() {
+    fetch('http://127.0.0.1:5001/get_logs')  // Sunucunun API endpointi
+        .then(response => response.json())
+        .then(data => {
+            if (data.length > 0) {
+                data.forEach(logMessage => {
+                    addLog(logMessage);  // Gelen her logu ekle
+                });
+            }
+        })
+        .catch(error => console.error("Log verileri alınamadı:", error));
 }
 
 // Simulate adding a log when server pushes
 function simulateLog() {
     setInterval(() => {
-        // Log eklenmemişse, bir log ekle
-        if (!logAdded) {
-            addLog("Yeni bir log kaydedildi.");
-        } else {
-            logAdded = false;  // Log eklenmişse bayrağı sıfırla
-        }
-    }, 5000);  // Her 5 saniyede bir log eklemeye çalış
+        fetchLogs();  // Sunucudan yeni logları al
+    }, 5000);  // Her 5 saniyede bir log al ve ekle
 }
 
 window.onload = simulateLog;
