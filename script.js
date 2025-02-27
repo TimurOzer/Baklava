@@ -10,7 +10,7 @@ function addLog(message) {
 
 // Sunucudan logları çekip eklemek için
 function fetchLogs() {
-    fetch('http://127.0.0.1:5001/get_logs')  // Sunucunun API endpointi
+    fetch('http://127.0.0.1:5002/get_logs')  // Sunucunun API endpointi
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
