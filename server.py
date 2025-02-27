@@ -1,29 +1,24 @@
-import socket
-import json
 import os
-import time
+import json
+import socket
+from datetime import datetime
+import git  # GitPython
+import shutil
 from blockchain import Blockchain
-import git
 
-# Log kaydetme ve GitHub'a yükleme fonksiyonu
-def log_to_github(log_data):
-    # Log klasörünü kontrol et
-    log_folder = 'client_logs'
-    if not os.path.exists(log_folder):
-        os.makedirs(log_folder)
+# GitHub repository dizini
+REPO_PATH = "C:/Users/timon/Documents/GitHub/Test"  # GitHub repo klasör yolu
+LOG_FOLDER = "client_logs"  # Log klasör yolu
 
-    # Güncel tarih ile log kaydetme
-    current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
-    log_file = os.path.join(log_folder, f"log_{current_time}.txt")
-    
-    with open(log_file, 'w') as file:
-        file.write(log_data)
-
-    # Git işlemleri
-    repo = git.Repo(log_folder)
-    repo.index.add([log_file])
-    repo.index.commit(f"Log updated at {current_time}")
-    repo.remote().push()  # Push to the remote repository
+def push_to_github(log_file):
+    try:
+        repo = git.Repo(REPO_PATH)  # Git repo açılır
+        repo.git.add(log_file)  # Log dosyasını stage eder
+        repo.git.commit('-m', f'Added log file {log_file}')  # Commit yapar
+        repo.git.push()  # GitHub'a push eder
+        print(f"Log file {log_file} pushed to GitHub.")
+    except Exception as e:
+        print(f"Error pushing to GitHub: {e}")
 
 def start_server(host='127.0.0.1', port=5000):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -31,14 +26,14 @@ def start_server(host='127.0.0.1', port=5000):
     server_socket.listen(5)
     print(f"Server listening on {host}:{port}...")
 
-    blockchain = Blockchain()
+    blockchain = Blockchain()  # Blockchain'i başlatıyoruz
 
     while True:
         client_socket, client_address = server_socket.accept()
         print(f"Connection from {client_address} has been established.")
 
         try:
-            # Şifre doğrulaması
+            # Şifre doğrulaması yapılacak
             password = client_socket.recv(1024).decode('utf-8')
             if password == "Baklava123":
                 print("Password correct, proceeding...")
@@ -49,19 +44,23 @@ def start_server(host='127.0.0.1', port=5000):
                 data = client_socket.recv(1024).decode('utf-8')
                 print(f"Received data: {data}")
 
-                # JSON verisini işleyerek blok ekleyelim
+                # JSON verisini işleyerek bir blok ekleyelim
                 block_data = json.loads(data)
-                blockchain.add_block(block_data)
+                blockchain.add_block(block_data)  # Blockchain'e ekliyoruz
                 print(f"Updated blockchain: {blockchain.chain}")
 
-                # Log verisini oluştur
-                log_data = f"Block data received and added to blockchain:\n{block_data}\nUpdated blockchain:\n{blockchain.chain}"
-                
-                # GitHub'a gönder
-                log_to_github(log_data)
+                # Log dosyasını kaydedelim
+                timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                log_filename = f"log_{timestamp}.txt"
+                log_filepath = os.path.join(LOG_FOLDER, log_filename)
+                with open(log_filepath, 'w') as log_file:
+                    log_file.write(f"Received block data: {block_data}\n")
+                    log_file.write(f"Updated blockchain: {blockchain.chain}\n")
+                print(f"Log saved to: {log_filepath}")
 
-                # Yanıt gönderelim
-                client_socket.send("Block data received and added to blockchain".encode('utf-8'))
+                # GitHub'a yükleyelim
+                push_to_github(log_filepath)
+
             else:
                 print("Incorrect password.")
                 response = "Incorrect password"

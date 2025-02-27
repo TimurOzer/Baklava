@@ -1,0 +1,2 @@
+Sent block data: {"index": 1, "previous_hash": "0000", "transactions": "Alice->Bob 10 BTC", "timestamp": 123456789}
+Server response: 
