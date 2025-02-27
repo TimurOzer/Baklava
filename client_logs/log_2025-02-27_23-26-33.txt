@@ -1,0 +1,2 @@
+Received block data: {'index': 1, 'previous_hash': '0000', 'transactions': 'Alice->Bob 10 BTC', 'timestamp': 123456789}
+Updated blockchain: [<block.Block object at 0x000001A193400440>, <block.Block object at 0x000001A193363750>]
