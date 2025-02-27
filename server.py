@@ -3,9 +3,11 @@ import json
 import os
 from blockchain import Blockchain  # Blockchain sınıfınızı buraya dahil etmelisiniz
 from flask import Flask, jsonify
+from flask_cors import CORS  # CORS kütüphanesini dahil et
 import time
 
 app = Flask(__name__)
+CORS(app)  # CORS'u aktif et
 
 # Log dosyalarının bulunduğu klasör
 log_folder = "client_logs"
@@ -18,9 +20,12 @@ blockchain = Blockchain()
 # Logları almak için API endpoint
 @app.route('/get_logs', methods=['GET'])
 def get_logs():
-    log_files = [f for f in os.listdir(log_folder) if f.endswith('.txt')]  # .txt dosyalarını al
-    log_files.sort(reverse=True)  # En son logları önce sıralıyoruz
-    logs = []
+    try:
+        logs = get_logs_from_file()  # Log dosyasını okuma işlemi
+        return jsonify(logs)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
     # En son log dosyasındaki içeriği al
     for log_file in log_files:
