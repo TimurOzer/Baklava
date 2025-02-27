@@ -1,51 +1,54 @@
-import os
-from flask import Flask, jsonify
+import socket
 import json
-import time
+from blockchain import Blockchain  # Blockchain sınıfınızı buraya dahil etmelisiniz
 
-app = Flask(__name__)
+def start_server(host='127.0.0.1', port=5001):
+    # Sunucu soketini oluştur
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((host, port))  # Sunucuyu belirtilen host ve port üzerinde dinlemeye başlat
+    server_socket.listen(5)
+    print(f"Server listening on {host}:{port}...")
 
-# Logların saklanacağı dizini oluşturuyoruz
-log_folder = "client_logs"
-if not os.path.exists(log_folder):
-    os.makedirs(log_folder)
+    blockchain = Blockchain()  # Blockchain'i başlatıyoruz
 
-# Log dosyasının yolu
-log_file_path = os.path.join(log_folder, "log.txt")
+    while True:
+        # İstemci bağlantısını kabul et
+        client_socket, client_address = server_socket.accept()
+        print(f"Connection from {client_address} has been established.")
 
-# Örnek log ekleme fonksiyonu
-def append_log(message):
-    current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-    with open(log_file_path, "a") as log_file:
-        log_file.write(f"{current_time}: {message}\n")
+        try:
+            # Şifreyi alalım
+            password = client_socket.recv(1024).decode('utf-8')
+            print(f"Password received: {password}")
 
-# Sunucu başlatıldığında bir başlangıç logu ekliyoruz
-append_log("Server started successfully.")
+            # Şifreyi kontrol edelim
+            if password == "Baklava123":
+                print("Password correct, proceeding...")
+                response = "Password accepted"
+                client_socket.send(response.encode('utf-8'))
 
-# Logları almak için API endpoint
-@app.route("/get_logs", methods=["GET"])
-def get_logs():
-    try:
-        # Log dosyasını okuma
-        with open(log_file_path, "r") as log_file:
-            logs = log_file.readlines()
-        return jsonify(logs)
-    except Exception as e:
-        # Eğer hata olursa error mesajı döneriz
-        return jsonify({"error": str(e)}), 500
+                # Blockchain verisi alalım
+                data = client_socket.recv(1024).decode('utf-8')
+                print(f"Received data: {data}")
 
-# Sunucuya log eklemek için bir endpoint
-@app.route("/add_log", methods=["POST"])
-def add_log():
-    try:
-        # Log verisi almak
-        new_log = json.loads(request.data.decode('utf-8'))
-        message = new_log.get('message', 'No message')
-        append_log(message)
-        return jsonify({"status": "success", "message": "Log added."}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+                # JSON verisini işleyerek bir blok ekleyelim
+                block_data = json.loads(data)
+                blockchain.add_block(block_data)  # Blockchain'e ekliyoruz
+                print(f"Updated blockchain: {blockchain.chain}")
 
-# Sunucu çalıştırma
+                # Yanıt gönderelim
+                client_socket.send("Block data received and added to blockchain".encode('utf-8'))
+            else:
+                print("Incorrect password.")
+                response = "Incorrect password"
+                client_socket.send(response.encode('utf-8'))
+
+        except Exception as e:
+            print(f"Error: {e}")
+
+        finally:
+            # Bağlantıyı kapatalım
+            client_socket.close()
+
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5001)  # Flask server'ı başlatıyoruz
+    start_server()

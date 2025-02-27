@@ -1,0 +1,2 @@
+Block data sent: {'index': 1, 'previous_hash': '0000', 'transactions': 'Alice->Bob 10 BTC', 'timestamp': 1740688889.2051263}
+Server response: Block data received and added to blockchain
