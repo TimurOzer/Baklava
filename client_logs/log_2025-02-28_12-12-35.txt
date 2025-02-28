@@ -1,0 +1,2 @@
+New block added at 2025-02-28_12-12-35:
+{'index': 1, 'previous_hash': '0000', 'transactions': 'Alice->Bob 10 BTC', 'timestamp': 1740733955.4937906}
