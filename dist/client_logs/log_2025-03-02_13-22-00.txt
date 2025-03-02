@@ -1,0 +1,13 @@
+Transaction sent at 2025-03-02 13:22:00
+Block data: {
+  "index": 1,
+  "previous_hash": "0000",
+  "transactions": {
+    "sender": "43",
+    "recipient": "2",
+    "amount": 2000.0,
+    "timestamp": 1740910920.8779454
+  },
+  "timestamp": 1740910920.8779478
+}
+Server response: Block data received and added to blockchain

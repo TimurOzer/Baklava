@@ -1,0 +1,2 @@
+New block added at 2025-03-02_13-22-00:
+{'index': 1, 'previous_hash': '0000', 'transactions': {'sender': '43', 'recipient': '2', 'amount': 2000.0, 'timestamp': 1740910920.8779454}, 'timestamp': 1740910920.8779478}
