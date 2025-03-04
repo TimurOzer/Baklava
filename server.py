@@ -42,17 +42,24 @@ def get_status():
 # Logları yapılandırılmış JSON formatında kaydetme fonksiyonu
 def save_log_to_file(log_data):
     """
-    Logları yapılandırılmış JSON formatında kaydeder.
+    Logları JSON formatında kaydeder ve doğru formatta olup olmadığını kontrol eder.
     """
     timestamp = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
-    log_filename = f"{log_folder}/log_{timestamp}.json"  # .json uzantısı ile kaydedin
+    log_filename = f"{log_folder}/log_{timestamp}.json"  # .json uzantısını koru
 
     try:
+        # JSON'un geçerli olup olmadığını kontrol et
+        json_string = json.dumps(log_data, indent=4)  # JSON string olarak oluştur
+        json.loads(json_string)  # JSON geçerli mi kontrol et
+
         with open(log_filename, 'w') as log_file:
-            json.dump(log_data, log_file, indent=4)  # JSON formatında kaydedin
-        print(f"Log saved to: {log_filename}")
+            log_file.write(json_string)  # JSON formatında kaydet
+
+        print(f"✅ Log saved to: {log_filename}")  # Başarı mesajı
+    except json.JSONDecodeError as e:
+        print(f"🚨 JSON format hatası: {e}")
     except Exception as e:
-        print(f"Error saving log: {e}")
+        print(f"🚨 Log kaydetme hatası: {e}")
 
 # Logları almak için API endpoint
 @app.route('/get_logs', methods=['GET'])

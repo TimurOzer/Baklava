@@ -32,7 +32,7 @@ class Blockchain:
     def create_genesis_block(self):
         genesis_transactions = [{
             "sender": "0",  # Sistem tarafından oluşturuldu
-            "recipient": "developer_wallet_address",  # Geliştirici cüzdanı
+            "recipient": "03f010ab12973e6a66bb57b6447c8e3f59dcc054592a8093133413b3096bf4d7",  # Geliştirici cüzdanı
             "amount": 21000000  # Toplam arz
         }]
         return Block(0, "0", genesis_transactions, time.time())
