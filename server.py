@@ -20,6 +20,24 @@ if not os.path.exists(log_folder):
 # Blockchain'i başlatıyoruz
 blockchain = Blockchain()
 
+# Sunucu durumunu kontrol etmek için API endpoint
+@app.route('/status', methods=['GET'])
+def get_status():
+    try:
+        # Sunucunun çalışıp çalışmadığını kontrol et
+        # Bir soket bağlantısı denemesi yapalım
+        test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        test_socket.settimeout(2)  # 2 saniye timeout
+        result = test_socket.connect_ex(('127.0.0.1', 5001))  # Sunucu portunu kontrol et
+        test_socket.close()
+
+        if result == 0:
+            return jsonify({"status": "Online"}), 200
+        else:
+            return jsonify({"status": "Offline"}), 500
+    except Exception as e:
+        return jsonify({"status": "Offline", "error": str(e)}), 500
+
 # Logları yapılandırılmış JSON formatında kaydetme fonksiyonu
 def save_log_to_file(log_data):
     """
