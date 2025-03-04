@@ -64,4 +64,30 @@ function fetchLogs() {
         .catch(error => console.error("Log verileri alınamadı:", error));
 }
 
-window.onload = fetchLogs;  // Sayfa yüklendiğinde logları çekmeye başla
+// Sunucu durumunu kontrol etme fonksiyonu
+function checkServerStatus() {
+    fetch('http://127.0.0.1:5002/status')
+        .then(response => response.json())
+        .then(data => {
+            const statusText = document.getElementById("status-text");
+            if (data.status === "Online") {
+                statusText.textContent = "Online";
+                statusText.style.color = "green";
+            } else {
+                statusText.textContent = "Offline";
+                statusText.style.color = "red";
+            }
+        })
+        .catch(error => {
+            const statusText = document.getElementById("status-text");
+            statusText.textContent = "Offline";
+            statusText.style.color = "red";
+            console.error("Error checking server status:", error);
+        });
+}
+
+// Sayfa yüklendiğinde sunucu durumunu kontrol et
+window.onload = function () {
+    checkServerStatus();
+    fetchLogs();  // Logları çekmeye başla
+};
