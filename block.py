@@ -1,13 +1,11 @@
-import hashlib
-import time
-
+# block.py
 class Block:
     def __init__(self, index, previous_hash, transactions, timestamp=None):
         self.index = index
         self.previous_hash = previous_hash
         self.transactions = transactions
         self.timestamp = timestamp or time.time()
-        self.nonce = 0  # Used for Proof of Work
+        self.nonce = 0
         self.hash = self.calculate_hash()
 
     def calculate_hash(self):

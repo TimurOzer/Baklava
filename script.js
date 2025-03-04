@@ -90,6 +90,43 @@ function checkServerStatus() {
             console.error("Error checking server status:", error);
         });
 }
+// Coin transferi yapma
+document.getElementById("transfer-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const sender = document.getElementById("sender").value;
+    const recipient = document.getElementById("recipient").value;
+    const amount = parseFloat(document.getElementById("amount").value);
+
+    fetch('http://127.0.0.1:5002/transfer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sender, recipient, amount }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("transfer-status").textContent = data.message || data.error;
+        })
+        .catch(error => {
+            console.error("Transfer hatası:", error);
+        });
+});
+
+// Bakiye sorgulama
+document.getElementById("balance-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const address = document.getElementById("address").value;
+
+    fetch(`http://127.0.0.1:5002/balance/${address}`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("balance-result").textContent = `Bakiye: ${data.balance}`;
+        })
+        .catch(error => {
+            console.error("Bakiye sorgulama hatası:", error);
+        });
+});
 
 // Sayfa yüklendiğinde sunucu durumunu kontrol et
 window.onload = function () {
