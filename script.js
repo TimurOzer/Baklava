@@ -67,7 +67,12 @@ function fetchLogs() {
 // Sunucu durumunu kontrol etme fonksiyonu
 function checkServerStatus() {
     fetch('http://127.0.0.1:5002/status')
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        })
         .then(data => {
             const statusText = document.getElementById("status-text");
             if (data.status === "Online") {
