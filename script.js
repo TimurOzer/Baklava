@@ -1,21 +1,55 @@
-let logAdded = false;  // Yeni logun zaten eklenip eklenmediğini kontrol etmek için bir bayrak
+let logAdded = false;
 
-function addLog(message) {
+function addLog(logData) {
     const logContainer = document.getElementById("logs");
-    const logEntry = document.createElement("p");
-    const currentDate = new Date().toLocaleString();
-    logEntry.textContent = `${currentDate}: ${message}`;
-    logContainer.appendChild(logEntry);
+
+    // Log kartını oluştur
+    const logCard = document.createElement("div");
+    logCard.className = "log-card";
+
+    // Timestamp
+    const timestamp = document.createElement("h4");
+    timestamp.textContent = `Zaman: ${logData.timestamp}`;
+    logCard.appendChild(timestamp);
+
+    // Previous Hash
+    const previousHash = document.createElement("p");
+    previousHash.textContent = `Önceki Hash: ${logData.previous_hash}`;
+    logCard.appendChild(previousHash);
+
+    // Current Hash
+    const currentHash = document.createElement("p");
+    currentHash.textContent = `Mevcut Hash: ${logData.hash}`;
+    logCard.appendChild(currentHash);
+
+    // Transactions
+    const transactionsHeader = document.createElement("p");
+    transactionsHeader.textContent = "İşlemler:";
+    logCard.appendChild(transactionsHeader);
+
+    logData.transactions.forEach(transaction => {
+        const transactionDiv = document.createElement("div");
+        transactionDiv.className = "transaction";
+        transactionDiv.innerHTML = `
+            <p>Gönderen: ${transaction.sender}</p>
+            <p>Alıcı: ${transaction.recipient}</p>
+            <p>Miktar: ${transaction.amount}</p>
+        `;
+        logCard.appendChild(transactionDiv);
+    });
+
+    // Log kartını log container'a ekle
+    logContainer.appendChild(logCard);
 }
 
 // Sunucudan logları çekip eklemek için
 function fetchLogs() {
-    fetch('http://127.0.0.1:5002/get_logs')  // Sunucunun API endpointi
+    fetch('http://127.0.0.1:5002/get_logs')
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
-                data.forEach(logMessage => {
-                    addLog(logMessage);  // Gelen her logu ekle
+                data.forEach(log => {
+                    addLog(log);  // Her logu ekle
                 });
             }
         })
