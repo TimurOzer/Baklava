@@ -1,11 +1,4 @@
 {
-    "timestamp": "2025-03-04 13:46:23",
-    "previous_hash": "c102d321ee01ccca62ae3b8d43b7841929676215bb88bb234f2c26919c23dcf2",
-    "transactions": {
-        "sender": "POY",
-        "recipient": "TOR",
-        "amount": 100.0,
-        "timestamp": 1741085183.8824768
-    },
-    "hash": "00ebf7eac213b187f29ce0883d51088b457d4b349f7cca65f0697edc2b95ef5f"
+    "timestamp": "2025-03-04 13:48:50",
+    "content": "Transaction sent at 2025-03-04 13:46:23\nBlock data: {\n  \"index\": 1,\n  \"previous_hash\": \"0000\",\n  \"transactions\": {\n    \"sender\": \"POY\",\n    \"recipient\": \"TOR\",\n    \"amount\": 100.0,\n    \"timestamp\": 1741085183.8824768\n  },\n  \"timestamp\": 1741085183.8824875\n}\nServer response: Block data received and added to blockchain\n"
 }

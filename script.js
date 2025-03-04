@@ -1,5 +1,3 @@
-let logAdded = false;
-
 function addLog(logData) {
     const logContainer = document.getElementById("logs");
 
@@ -27,16 +25,22 @@ function addLog(logData) {
     transactionsHeader.textContent = "İşlemler:";
     logCard.appendChild(transactionsHeader);
 
-    logData.transactions.forEach(transaction => {
-        const transactionDiv = document.createElement("div");
-        transactionDiv.className = "transaction";
-        transactionDiv.innerHTML = `
-            <p>Gönderen: ${transaction.sender}</p>
-            <p>Alıcı: ${transaction.recipient}</p>
-            <p>Miktar: ${transaction.amount}</p>
-        `;
-        logCard.appendChild(transactionDiv);
-    });
+    if (logData.transactions && logData.transactions.length > 0) {
+        logData.transactions.forEach(transaction => {
+            const transactionDiv = document.createElement("div");
+            transactionDiv.className = "transaction";
+            transactionDiv.innerHTML = `
+                <p>Gönderen: ${transaction.sender}</p>
+                <p>Alıcı: ${transaction.recipient}</p>
+                <p>Miktar: ${transaction.amount}</p>
+            `;
+            logCard.appendChild(transactionDiv);
+        });
+    } else {
+        const noTransactions = document.createElement("p");
+        noTransactions.textContent = "İşlem bulunamadı.";
+        logCard.appendChild(noTransactions);
+    }
 
     // Log kartını log container'a ekle
     logContainer.appendChild(logCard);
@@ -51,6 +55,8 @@ function fetchLogs() {
                 data.forEach(log => {
                     addLog(log);  // Her logu ekle
                 });
+            } else {
+                console.log("Log bulunamadı.");
             }
         })
         .catch(error => console.error("Log verileri alınamadı:", error));
