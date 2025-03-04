@@ -45,21 +45,3 @@ function addLog(logData) {
     // Log kartını log container'a ekle
     logContainer.appendChild(logCard);
 }
-
-// Sunucudan logları çekip eklemek için
-function fetchLogs() {
-    fetch('http://127.0.0.1:5002/get_logs')
-        .then(response => response.json())
-        .then(data => {
-            if (data.length > 0) {
-                data.forEach(log => {
-                    addLog(log);  // Her logu ekle
-                });
-            } else {
-                console.log("Log bulunamadı.");
-            }
-        })
-        .catch(error => console.error("Log verileri alınamadı:", error));
-}
-
-window.onload = fetchLogs;  // Sayfa yüklendiğinde logları çekmeye başla

@@ -20,10 +20,10 @@ if not os.path.exists(log_folder):
 # Blockchain'i başlatıyoruz
 blockchain = Blockchain()
 
-# Logları JSON formatında kaydetme fonksiyonu
+# Logları yapılandırılmış JSON formatında kaydetme fonksiyonu
 def save_log_to_file(log_data):
     """
-    Logları JSON formatında kaydeder.
+    Logları yapılandırılmış JSON formatında kaydeder.
     """
     timestamp = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())
     log_filename = f"{log_folder}/log_{timestamp}.json"  # .json uzantısı ile kaydedin
@@ -34,40 +34,6 @@ def save_log_to_file(log_data):
         print(f"Log saved to: {log_filename}")
     except Exception as e:
         print(f"Error saving log: {e}")
-
-# Mevcut .txt loglarını JSON'a dönüştürme fonksiyonu
-def convert_txt_logs_to_json():
-    """
-    Mevcut .txt loglarını JSON formatına dönüştürür.
-    """
-    try:
-        log_files = os.listdir(log_folder)  # Klasördeki tüm dosyaları al
-        for log_file in log_files:
-            if log_file.endswith(".txt"):
-                txt_file_path = os.path.join(log_folder, log_file)
-                json_file_path = os.path.join(log_folder, log_file.replace(".txt", ".json"))
-
-                try:
-                    with open(txt_file_path, 'r') as txt_file:
-                        log_content = txt_file.read()
-
-                    # Log içeriğini JSON formatına dönüştür
-                    log_data = {
-                        "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
-                        "content": log_content  # İsterseniz bu kısmı daha ayrıntılı parse edebilirsiniz
-                    }
-
-                    # JSON dosyası olarak kaydet
-                    with open(json_file_path, 'w') as json_file:
-                        json.dump(log_data, json_file, indent=4)
-
-                    print(f"Converted {txt_file_path} to {json_file_path}")
-
-                except Exception as e:
-                    print(f"Error converting {txt_file_path}: {e}")
-
-    except Exception as e:
-        print(f"Error listing log files: {e}")
 
 # Logları almak için API endpoint
 @app.route('/get_logs', methods=['GET'])
@@ -140,12 +106,12 @@ def start_server(host='127.0.0.1', port=5001):
                 blockchain.add_block(block_data)  # Blockchain'e ekliyoruz
                 print(f"Updated blockchain: {blockchain.chain}")
 
-                # Log kaydını JSON formatında yapalım
+                # Log kaydını yapılandırılmış JSON formatında yapalım
                 log_data = {
                     "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
                     "previous_hash": blockchain.get_latest_block().previous_hash,
-                    "transactions": block_data.get("transactions", []),
-                    "hash": blockchain.get_latest_block().hash
+                    "hash": blockchain.get_latest_block().hash,
+                    "transactions": block_data.get("transactions", [])
                 }
 
                 save_log_to_file(log_data)  # Logu JSON formatında kaydedin
@@ -165,9 +131,6 @@ def start_server(host='127.0.0.1', port=5001):
             client_socket.close()
 
 if __name__ == "__main__":
-    # Mevcut .txt loglarını JSON'a dönüştür
-    convert_txt_logs_to_json()
-
     # Sunucu ve Flask API'yi çalıştır
     server_thread = Thread(target=start_server, args=('127.0.0.1', 5001))
     server_thread.start()

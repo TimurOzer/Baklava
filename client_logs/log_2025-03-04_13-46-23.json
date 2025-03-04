@@ -1,4 +1,0 @@
-{
-    "timestamp": "2025-03-04 13:48:50",
-    "content": "Transaction sent at 2025-03-04 13:46:23\nBlock data: {\n  \"index\": 1,\n  \"previous_hash\": \"0000\",\n  \"transactions\": {\n    \"sender\": \"POY\",\n    \"recipient\": \"TOR\",\n    \"amount\": 100.0,\n    \"timestamp\": 1741085183.8824768\n  },\n  \"timestamp\": 1741085183.8824875\n}\nServer response: Block data received and added to blockchain\n"
-}
