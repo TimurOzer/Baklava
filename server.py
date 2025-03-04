@@ -2,7 +2,7 @@ import socket
 import json
 import os
 from blockchain import Blockchain  # Blockchain sınıfınızı buraya dahil etmelisiniz
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_cors import CORS  # CORS kütüphanesini dahil et
 import time
 from threading import Thread
@@ -91,6 +91,52 @@ def get_logs_from_file():
     except Exception as e:
         raise Exception(f"Error reading log file: {str(e)}")
 
+# Coin transferi için API endpoint
+@app.route('/transfer', methods=['POST'])
+def transfer():
+    try:
+        data = request.get_json()
+        sender = data.get("sender")
+        recipient = data.get("recipient")
+        amount = data.get("amount")
+
+        # Bakiye kontrolü
+        if blockchain.get_balance(sender) < amount:
+            return jsonify({"error": "Yetersiz bakiye"}), 400
+
+        # Yeni işlem oluştur
+        transaction = {
+            "sender": sender,
+            "recipient": recipient,
+            "amount": amount
+        }
+
+        # Bloğa ekle
+        blockchain.add_block([transaction])
+
+        # Log kaydını yapılandırılmış JSON formatında yapalım
+        log_data = {
+            "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
+            "previous_hash": blockchain.get_latest_block().previous_hash,
+            "hash": blockchain.get_latest_block().hash,
+            "transactions": [transaction]  # Transactions'ı dizi olarak kaydedin
+        }
+
+        save_log_to_file(log_data)  # Logu JSON formatında kaydedin
+
+        return jsonify({"message": "Transfer başarılı"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Bakiye sorgulama için API endpoint
+@app.route('/balance/<address>', methods=['GET'])
+def get_balance(address):
+    try:
+        balance = blockchain.get_balance(address)
+        return jsonify({"address": address, "balance": balance}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Sunucuyu başlatma fonksiyonu
 def start_server(host='127.0.0.1', port=5001):
     # Sunucu soketini oluştur
@@ -121,7 +167,7 @@ def start_server(host='127.0.0.1', port=5001):
 
                 # JSON verisini işleyerek bir blok ekleyelim
                 block_data = json.loads(data)
-                blockchain.add_block(block_data)  # Blockchain'e ekliyoruz
+                blockchain.add_block([block_data])  # Blockchain'e ekliyoruz
                 print(f"Updated blockchain: {blockchain.chain}")
 
                 # Log kaydını yapılandırılmış JSON formatında yapalım
@@ -129,7 +175,7 @@ def start_server(host='127.0.0.1', port=5001):
                     "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
                     "previous_hash": blockchain.get_latest_block().previous_hash,
                     "hash": blockchain.get_latest_block().hash,
-                    "transactions": [block_data.get("transactions", {})]  # Transactions'ı dizi olarak kaydedin
+                    "transactions": [block_data]  # Transactions'ı dizi olarak kaydedin
                 }
 
                 save_log_to_file(log_data)  # Logu JSON formatında kaydedin

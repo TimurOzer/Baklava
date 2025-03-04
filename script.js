@@ -128,8 +128,40 @@ document.getElementById("balance-form").addEventListener("submit", function (e) 
         });
 });
 
-// Sayfa yüklendiğinde sunucu durumunu kontrol et
+// Yeni cüzdan oluşturma
+document.getElementById("create-wallet-btn").addEventListener("click", function () {
+    fetch('http://127.0.0.1:5002/create_wallet')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById("wallet-address").textContent = data.address;
+            document.getElementById("wallet-private-key").textContent = data.private_key;
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error("Cüzdan oluşturma hatası:", error);
+        });
+});
+
+// Cüzdan bilgilerini yükleme
+function loadWalletInfo() {
+    fetch('http://127.0.0.1:5002/wallet_info')
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById("wallet-address").textContent = data.address;
+                document.getElementById("wallet-private-key").textContent = data.private_key;
+            }
+        })
+        .catch(error => {
+            console.error("Cüzdan bilgileri yüklenirken hata:", error);
+        });
+}
+
+// Sayfa yüklendiğinde cüzdan bilgilerini yükle
 window.onload = function () {
+    loadWalletInfo();
     checkServerStatus();
     fetchLogs();  // Logları çekmeye başla
 };
