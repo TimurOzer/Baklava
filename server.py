@@ -6,6 +6,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS  # CORS kütüphanesini dahil et
 import time
 from threading import Thread
+from wallet import Wallet, create_wallet  # Wallet sınıfını ve fonksiyonunu içe aktar
 
 app = Flask(__name__)
 CORS(app)  # CORS'u aktif et
@@ -65,6 +66,31 @@ def get_logs():
         error_message = f"Error while fetching logs: {str(e)}"
         print(error_message)  # Hata mesajını konsola yazdıralım
         return jsonify({"error": error_message}), 500  # 500 status kodu ile hata mesajını döndürelim
+
+# Yeni cüzdan oluşturma endpoint'i
+@app.route('/create_wallet', methods=['GET'])
+def create_new_wallet():
+    try:
+        wallet = create_wallet()
+        return jsonify({
+            "address": wallet.address,
+            "private_key": wallet.private_key,
+            "message": "Yeni cüzdan oluşturuldu."
+        }), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Cüzdan bilgilerini görüntüleme endpoint'i
+@app.route('/wallet_info', methods=['GET'])
+def get_wallet_info():
+    try:
+        wallet_data = Wallet.load_from_file()
+        if wallet_data:
+            return jsonify(wallet_data), 200
+        else:
+            return jsonify({"error": "Cüzdan bulunamadı. Önce bir cüzdan oluşturun."}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # JSON formatındaki log dosyalarını okuma fonksiyonu
 def get_logs_from_file():
