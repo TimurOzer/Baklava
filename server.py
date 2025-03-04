@@ -111,7 +111,7 @@ def start_server(host='127.0.0.1', port=5001):
                     "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
                     "previous_hash": blockchain.get_latest_block().previous_hash,
                     "hash": blockchain.get_latest_block().hash,
-                    "transactions": block_data.get("transactions", [])
+                    "transactions": [block_data.get("transactions", {})]  # Transactions'ı dizi olarak kaydedin
                 }
 
                 save_log_to_file(log_data)  # Logu JSON formatında kaydedin
